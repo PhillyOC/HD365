@@ -31,6 +31,9 @@ const invokeMock = vi.fn(async (cmd: string, args?: Record<string, unknown>) => 
         configPath: "C:\\fake\\settings.json",
       } satisfies SessionInitResult;
 
+    case "provider.catalog":
+      return [];
+
     case "pipeline.submit":
       return {
         Proposal: {
@@ -127,6 +130,7 @@ describe("HD365 desktop chat flow", () => {
     expect(methods).toEqual([
       "ping",
       "session.init",
+      "provider.catalog",
       "pipeline.submit",
       "run.preview",
       "run.execute",

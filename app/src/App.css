@@ -50,6 +50,82 @@ body {
   font-size: 0.85em;
 }
 
+.app-status-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-pill {
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.78em;
+  font-weight: 600;
+  border: 1px solid #2a3846;
+  background-color: #121821;
+  color: #e6f1ff;
+  cursor: default;
+}
+
+.status-pill.status-warn {
+  cursor: pointer;
+  border-color: #7c5c05;
+  background-color: #241c07;
+  color: #fbbf24;
+}
+
+.status-pill.status-warn:hover:not(:disabled) {
+  border-color: #fbbf24;
+}
+
+.status-pill.status-ok {
+  border-color: #14532d;
+  background-color: #0f2417;
+  color: #86efac;
+}
+
+.status-pill.status-info {
+  border-color: #164e63;
+  background-color: #0e2733;
+  color: #67e8f9;
+}
+
+.status-pill:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.app-tabs {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.5rem 1.25rem 0;
+  border-bottom: 1px solid #1f2a37;
+  background-color: #0e141b;
+  flex-shrink: 0;
+}
+
+.app-tabs button {
+  border: none;
+  border-radius: 6px 6px 0 0;
+  background-color: transparent;
+  color: #8aa0b4;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+}
+
+.app-tabs button:hover:not(:disabled) {
+  color: #e6f1ff;
+}
+
+.app-tabs button.tab-active {
+  color: #22d3ee;
+  background-color: #121821;
+  border: 1px solid #1f2a37;
+  border-bottom-color: #121821;
+  position: relative;
+  top: 1px;
+}
+
 .app-main {
   flex: 1;
   overflow: hidden;
@@ -387,4 +463,142 @@ button:disabled {
   display: flex;
   justify-content: flex-end;
   gap: 0.6rem;
+}
+
+/* ---------------- Settings views (Providers / Audit) ---------------- */
+
+.settings-view {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
+}
+
+.settings-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.settings-header-row h2 {
+  margin: 0;
+  color: #e6f1ff;
+}
+
+.provider-list,
+.audit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.provider-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-radius: 10px;
+  padding: 0.9rem 1.1rem;
+  background-color: #121821;
+  border: 1px solid #1f2a37;
+}
+
+.provider-row.active {
+  border-color: #0e7490;
+}
+
+.provider-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #e6f1ff;
+  margin-bottom: 0.3rem;
+}
+
+.badge-active {
+  background-color: #0e7490;
+  color: #fff;
+}
+
+.provider-meta {
+  display: flex;
+  gap: 0.9rem;
+  color: #8aa0b4;
+  font-size: 0.82em;
+}
+
+.provider-notes {
+  margin: 0.4rem 0 0 0;
+  color: #8aa0b4;
+  font-size: 0.85em;
+  max-width: 46em;
+}
+
+.audit-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.audit-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #8aa0b4;
+  font-size: 0.88em;
+}
+
+.audit-controls select {
+  border-radius: 6px;
+  border: 1px solid #2a3846;
+  background-color: #121821;
+  color: #e6f1ff;
+  padding: 0.35rem 0.5rem;
+}
+
+.audit-row {
+  border-radius: 8px;
+  border: 1px solid #1f2a37;
+  background-color: #121821;
+  overflow: hidden;
+}
+
+.audit-row-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem 0.9rem;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: #e6f1ff;
+}
+
+.audit-row-summary:hover {
+  background-color: #16202b;
+}
+
+.audit-time {
+  color: #8aa0b4;
+  font-size: 0.82em;
+  min-width: 12em;
+}
+
+.audit-event {
+  font-weight: 600;
+}
+
+.audit-phase,
+.audit-operator {
+  color: #8aa0b4;
+  font-size: 0.85em;
+  margin-left: auto;
+}
+
+.audit-detail {
+  padding: 0.8rem 0.9rem 1rem;
+  border-top: 1px solid #1f2a37;
 }

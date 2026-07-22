@@ -139,6 +139,8 @@ export const HD365 = {
   authConnect: (mode: "Read" | "Write" = "Read") =>
     bridgeCall<{ account: string; tenantId: string; scopes: string[] }>("auth.connect", { mode }),
 
+  exoConnect: () => bridgeCall<{ connected: boolean }>("exo.connect"),
+
   submitPipeline: (message: string) =>
     bridgeCall<PendingProposal>("pipeline.submit", { message }),
 

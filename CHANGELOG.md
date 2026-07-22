@@ -38,6 +38,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   only the Tauri `invoke` boundary and drives the real `ChatView` through a full write-proposal
   flow (submit -> solution card -> Run -> modal blocks until exact phrase typed -> execute ->
   result), asserting the exact bridge method call sequence.
+- App shell now has a tab bar (Chat / AI Providers / Audit Log) and an expanded status header:
+  clickable Graph and Exchange Online status pills (wired to `auth.connect` / `exo.connect`,
+  showing live connect state) plus an active-AI-provider pill.
+- `app/src/components/ProvidersView.tsx`: lists the full provider catalog via `provider.catalog`
+  (configured/not-configured, active badge, env var / endpoint hints, notes) with a one-click
+  "Use this provider" switch that calls `config.saveProvider` and refreshes the header badge.
+- `app/src/components/AuditView.tsx`: tails the local audit log via `audit.tail` with a
+  writes-only filter and a row-count selector; each row expands to show session/machine/graph
+  mode, script text, and event data, matching the console's audit story in the GUI.
 
 ## [0.2.0] - 2026-07-22
 
