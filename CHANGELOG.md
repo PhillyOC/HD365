@@ -60,6 +60,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   reopenable any time from a "Setup guide" pill in the header. Backed by a new bridge method,
   `session.prereqCheck` (module-installed / connected / active-provider-configured flags in one
   call), covered by `Tests\Smoke-Bridge.ps1` and `app/src/App.onboarding.test.tsx`.
+- `build\Build-HD365App.ps1`: builds the HD365 desktop installer(s). Syncs the desktop app's
+  version (`app/package.json`, `app/src-tauri/Cargo.toml`, `app/src-tauri/tauri.conf.json`) from
+  the canonical `HD365.psd1` `ModuleVersion`, stages a fresh copy of the PowerShell engine
+  (`HD365.psd1`/`psm1`, `Bridge-HD365.ps1`, `Private/`, `Public/`, `Config/`) into
+  `app/src-tauri/engine/` as a Tauri bundle resource, runs `npm run tauri build`, and copies the
+  resulting NSIS/MSI installer(s) into `dist/` as `HD365-Desktop-Setup-<version>.exe` /
+  `HD365-Desktop-<version>.msi` (finds the real cargo target dir via `cargo metadata` so it
+  works under redirected/sandboxed `CARGO_TARGET_DIR`s too, e.g. CI).
+- `tauri.conf.json`: added `bundle.resources` (`engine/` -> `engine/`, preserving the
+  `Private`/`Public`/`Config` subfolder structure `resolve_bridge_script` expects in release
+  builds) plus publisher/description/category metadata for the installer.
+- `.github/workflows/release.yml`: new `build-desktop` job (Node + Rust toolchain, `npm ci`,
+  `Build-HD365App.ps1 -SkipInstall`) that attaches the desktop installer(s) to the same GitHub
+  Release as the existing console zip/exe, on every `v*` tag push.
 
 ## [0.2.0] - 2026-07-22
 
