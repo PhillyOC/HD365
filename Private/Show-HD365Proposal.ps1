@@ -17,7 +17,10 @@ HelpDesk 365 AI  -  Graph-first M365 admin assistant
     Write-Host "Phase   : $($script:HD365Session.Phase)  |  Graph: $($script:HD365Session.GraphMode)  |  Operator: $($script:HD365Session.Operator)" -ForegroundColor DarkGray
     Write-Host ""
     Write-Host "Flow: ask -> AI discovery (read) -> AI solution -> /run" -ForegroundColor DarkYellow
-    Write-Host ("AI      : {0}" -f $script:HD365Config.ai.provider) -ForegroundColor DarkGray
+    $aiEntry = $null
+    try { $aiEntry = @(Get-HD365ProviderCatalog) | Where-Object { $_.Id -eq $script:HD365Config.ai.provider } | Select-Object -First 1 } catch {}
+    $aiLabel = if ($aiEntry) { "$($script:HD365Config.ai.provider) ($($aiEntry.DisplayName))" } else { [string]$script:HD365Config.ai.provider }
+    Write-Host ("AI      : {0}" -f $aiLabel) -ForegroundColor DarkGray
     Write-Host "Commands: /help  /ai  /status  /auth [read|write]  /exo  /run (/r)  /edit  /copy  /cancel  /audit  /quit" -ForegroundColor DarkYellow
     Write-Host ""
 }
@@ -34,8 +37,9 @@ HD365 AI-first two-phase flow
   3. /run       - execute (writes require typing EXECUTE)
 
 AI provider (settings.json ai.provider):
-  CopilotChat (default) | AzureOpenAI | OpenAI
-  Type /ai for status. Complex NL requires AI (offline fallback off by default).
+  CopilotChat (default) | AzureOpenAI | OpenAI | Anthropic | Gemini | Together | Mistral | Ollama
+  Type /ai for an interactive status + switcher, or /ai <Name> to jump straight to one.
+  Complex NL requires AI (offline fallback off by default).
 
 Examples
   Create groups for every US state and AP/AR under each (150 total)
@@ -44,7 +48,7 @@ Examples
 
 Slash commands
   /help              Show this help
-  /ai                AI provider / Copilot status
+  /ai [Name]         AI provider status + interactive switcher (or jump to Name)
   /status            Session / auth status
   /auth read|write   Connect Microsoft Graph
   /exo               Connect Exchange Online

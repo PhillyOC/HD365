@@ -342,7 +342,7 @@ function Build-HD365Solution {
         'AiWrite' {
             $scriptText = [string]$Plan.executionScript
             if ([string]::IsNullOrWhiteSpace($scriptText)) {
-                throw "AI write plan missing executionScript after discovery. Refine the request or configure Azure OpenAI."
+                throw "AI write plan missing executionScript after discovery. Refine the request or check /ai for a configured provider."
             }
             if ($scriptText -match 'contoso\.com|user@|Exact Group Name|GroupName') {
                 throw "Solution still contains placeholders. Discovery data was not applied."

@@ -1,5 +1,6 @@
 $ErrorActionPreference = 'Stop'
-Get-ChildItem 'C:\HD365\Private\*.ps1' | ForEach-Object { . $_.FullName }
+$root = if ($PSScriptRoot) { Split-Path $PSScriptRoot -Parent } else { 'C:\HD365' }
+Get-ChildItem (Join-Path $root 'Private\*.ps1') | ForEach-Object { . $_.FullName }
 
 $states = @(Get-HD365UsStateOfficeGroups)
 if ($states[0] -match '^Office') { throw 'state groups must not use Office - prefix' }

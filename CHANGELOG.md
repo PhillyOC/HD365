@@ -7,8 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Planned
-- Agnostic AI providers (Together AI, Anthropic, Ollama) for the consumer line
+## [0.2.0] - 2026-07-22
+
+### Added
+- Provider-agnostic AI adapter layer (`Invoke-HD365Providers.ps1`): a single catalog +
+  `Invoke-HD365ProviderChat` dispatcher shared by every provider
+- New AI providers on the consumer line: OpenAI, Anthropic Claude, Google Gemini,
+  Together AI, Mistral AI, and locally-running Ollama (in addition to CopilotChat
+  and Azure OpenAI)
+- Interactive `/ai` command: numbered menu of configured/unconfigured providers,
+  switch by number or name, or jump straight to one with `/ai <Name>`
+- `Save-HD365Config` persists provider switches to `%LOCALAPPDATA%\HD365\settings.json`
+- `ai.providers.*` settings schema (per-provider model/baseUrl/endpoint/apiKeyEnvVar);
+  legacy flat `ai.endpoint`/`deployment`/`apiKeyEnvVar`/`model` keys auto-migrate on load
+
+### Changed
+- `Invoke-HD365Ai` now dispatches through the shared provider adapter instead of a
+  per-provider switch statement; JSON-parse retry is centralized for all providers
+- Work-line export (`Export-HD365Work.ps1`) now ships a trimmed 2-provider
+  (`CopilotChat` + `AzureOpenAI`) `Invoke-HD365Providers.ps1`, so Pro-only providers
+  are excluded from the enterprise build entirely, not just hidden from the menu
 
 ## [0.1.0] - 2026-07-22
 
@@ -24,5 +42,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Windows portable zip and Inno Setup installer packaging
 - Work-line export script (Copilot-only trim for enterprise Copilot Git)
 
-[Unreleased]: https://github.com/PhillyOC/HD365/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/PhillyOC/HD365/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/PhillyOC/HD365/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/PhillyOC/HD365/releases/tag/v0.1.0

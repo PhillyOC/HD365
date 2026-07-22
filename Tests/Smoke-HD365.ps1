@@ -1,9 +1,10 @@
 $ErrorActionPreference = 'Stop'
-Import-Module 'C:\HD365\HD365.psd1' -Force
+$root = if ($PSScriptRoot) { Split-Path $PSScriptRoot -Parent } else { 'C:\HD365' }
+Import-Module (Join-Path $root 'HD365.psd1') -Force
 Write-Host ("Exported: " + ((Get-Command -Module HD365).Name -join ', '))
 
-$script:HD365Root = 'C:\HD365'
-Get-ChildItem 'C:\HD365\Private\*.ps1' | ForEach-Object { . $_.FullName }
+$script:HD365Root = $root
+Get-ChildItem (Join-Path $root 'Private\*.ps1') | ForEach-Object { . $_.FullName }
 
 # One-liner helper
 $ol = ConvertTo-HD365OneLiner -ScriptText "Get-MgUser`n# comment`nGet-MgGroup"

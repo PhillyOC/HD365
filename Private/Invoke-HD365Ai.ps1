@@ -1,21 +1,3 @@
-function Get-HD365AiApiKey {
-    [CmdletBinding()]
-    param()
-
-    $config = $script:HD365Config
-    $envVar = $config.ai.apiKeyEnvVar
-    if (-not $envVar) { $envVar = 'HD365_AZURE_OPENAI_KEY' }
-
-    $key = [Environment]::GetEnvironmentVariable($envVar, 'Process')
-    if (-not $key) { $key = [Environment]::GetEnvironmentVariable($envVar, 'User') }
-    if (-not $key) { $key = [Environment]::GetEnvironmentVariable($envVar, 'Machine') }
-
-    if (-not $key) {
-        throw "AI API key not found. Set environment variable '$envVar' (see Config\settings.example.json)."
-    }
-    return $key
-}
-
 function Get-HD365SystemPrompt {
     [CmdletBinding()]
     param()
@@ -77,18 +59,10 @@ function Test-HD365AiConfigured {
     param()
 
     $provider = [string]$script:HD365Config.ai.provider
-    switch ($provider) {
-        'CopilotChat' { return $true }
-        'AzureOpenAI' {
-            try { $null = Get-HD365AiApiKey; return ($script:HD365Config.ai.endpoint -and $script:HD365Config.ai.deployment) }
-            catch { return $false }
-        }
-        'OpenAI' {
-            try { $null = Get-HD365AiApiKey; return $true }
-            catch { return $false }
-        }
-        default { return $false }
-    }
+    if (-not $provider) { $provider = 'CopilotChat' }
+
+    try { return (Test-HD365ProviderConfigured -Id $provider) }
+    catch { return $false }
 }
 
 function Invoke-HD365Ai {
@@ -128,80 +102,32 @@ function Invoke-HD365Ai {
     $maxTokens = 8192
     if ($null -ne $config.ai.maxTokens) { $maxTokens = [int]$config.ai.maxTokens }
 
-    $content = $null
-
-    switch ($provider) {
-        'CopilotChat' {
-            $preamble = @"
+    $preamble = @"
 $system
 
 IMPORTANT: Reply with ONE JSON object only that matches the schema in the system instructions. No markdown fences. No explanation outside JSON.
 "@
-            $content = Invoke-HD365CopilotChat -Message $userPayload -SystemPreamble $preamble
 
-            # Retry once if JSON parse fails
-            try {
-                return (ConvertFrom-HD365AiJson -Content $content)
-            }
-            catch {
-                if ($config.ai.copilot.requireJsonRetry -eq $false) { throw }
-                Write-Host "Copilot JSON parse failed; retrying with stricter instruction..." -ForegroundColor Yellow
-                $retryMsg = @"
+    $content = Invoke-HD365ProviderChat -ProviderId $provider -System $preamble -User $userPayload -Temperature $temperature -MaxTokens $maxTokens
+
+    try {
+        return (ConvertFrom-HD365AiJson -Content $content)
+    }
+    catch {
+        $retryAllowed = $true
+        if ($provider -eq 'CopilotChat' -and $config.ai.copilot -and $config.ai.copilot.requireJsonRetry -eq $false) {
+            $retryAllowed = $false
+        }
+        if (-not $retryAllowed) { throw }
+
+        Write-Host "AI JSON parse failed; retrying with stricter instruction..." -ForegroundColor Yellow
+        $retryMsg = @"
 Your previous reply was not valid JSON for HD365. Return ONLY a valid JSON object for this request (no markdown, no prose):
 
 $userPayload
 "@
-                $content = Invoke-HD365CopilotChat -Message $retryMsg -SystemPreamble $preamble
-                return (ConvertFrom-HD365AiJson -Content $content)
-            }
-        }
-        'AzureOpenAI' {
-            $apiKey = Get-HD365AiApiKey
-            $endpoint = $config.ai.endpoint.TrimEnd('/')
-            $deployment = $config.ai.deployment
-            $apiVersion = $config.ai.apiVersion
-            if (-not $endpoint -or -not $deployment) {
-                throw "Azure OpenAI endpoint and deployment must be set in settings.json"
-            }
-            $messages = @(
-                @{ role = 'system'; content = $system }
-                @{ role = 'user'; content = $userPayload }
-            )
-            $uri = "$endpoint/openai/deployments/$deployment/chat/completions?api-version=$apiVersion"
-            $body = @{
-                messages        = $messages
-                temperature     = $temperature
-                max_tokens      = $maxTokens
-                response_format = @{ type = 'json_object' }
-            } | ConvertTo-Json -Depth 10
-            $headers = @{ 'api-key' = $apiKey; 'Content-Type' = 'application/json' }
-            $response = Invoke-RestMethod -Method Post -Uri $uri -Headers $headers -Body $body -TimeoutSec 180
-            $content = $response.choices[0].message.content
-            return (ConvertFrom-HD365AiJson -Content $content)
-        }
-        'OpenAI' {
-            $apiKey = Get-HD365AiApiKey
-            $model = $config.ai.model
-            if (-not $model) { $model = 'gpt-4o' }
-            $messages = @(
-                @{ role = 'system'; content = $system }
-                @{ role = 'user'; content = $userPayload }
-            )
-            $body = @{
-                model           = $model
-                messages        = $messages
-                temperature     = $temperature
-                max_tokens      = $maxTokens
-                response_format = @{ type = 'json_object' }
-            } | ConvertTo-Json -Depth 10
-            $headers = @{ Authorization = "Bearer $apiKey"; 'Content-Type' = 'application/json' }
-            $response = Invoke-RestMethod -Method Post -Uri 'https://api.openai.com/v1/chat/completions' -Headers $headers -Body $body -TimeoutSec 180
-            $content = $response.choices[0].message.content
-            return (ConvertFrom-HD365AiJson -Content $content)
-        }
-        default {
-            throw "Unsupported AI provider '$provider'. Use CopilotChat, AzureOpenAI, or OpenAI."
-        }
+        $content = Invoke-HD365ProviderChat -ProviderId $provider -System $preamble -User $retryMsg -Temperature $temperature -MaxTokens $maxTokens
+        return (ConvertFrom-HD365AiJson -Content $content)
     }
 }
 
@@ -242,6 +168,12 @@ function Get-HD365AiStatus {
     param()
 
     $provider = [string]$script:HD365Config.ai.provider
+    if (-not $provider) { $provider = 'CopilotChat' }
+
+    $catalog = @(Get-HD365ProviderCatalog)
+    $entry = $catalog | Where-Object { $_.Id -eq $provider } | Select-Object -First 1
+    $displayName = if ($entry) { $entry.DisplayName } else { $provider }
+
     $configured = Test-HD365AiConfigured
     $ctx = $null
     try { $ctx = Get-MgContext -ErrorAction SilentlyContinue } catch {}
@@ -265,8 +197,20 @@ function Get-HD365AiStatus {
         }
     }
 
+    $tip = 'Use /ai to switch providers.'
+    if ($provider -eq 'CopilotChat') {
+        $tip = 'Desktop Copilot != Chat API. Needs work M365 Copilot add-on + Graph scopes. Use /ai to probe.'
+    }
+    elseif ($entry -and $entry.Kind -eq 'Ollama') {
+        $tip = "Run 'ollama serve' locally and pull a model. Use /ai to switch providers."
+    }
+    elseif ($entry -and $entry.KeyEnvVar) {
+        $tip = "Set env var $($entry.KeyEnvVar). Use /ai to switch providers."
+    }
+
     [pscustomobject]@{
         Provider              = $provider
+        ProviderName           = $displayName
         Configured            = $configured
         AllowOfflineFallback  = [bool]$script:HD365Config.ai.allowOfflineFallback
         GraphConnected        = $graphConnected
@@ -277,12 +221,7 @@ function Get-HD365AiStatus {
         CopilotConversationId = $convId
         SettingsPath          = $script:HD365ConfigPath
         CopilotGraphRoot      = if ($script:HD365Config.ai.copilot -and $script:HD365Config.ai.copilot.graphRoot) { $script:HD365Config.ai.copilot.graphRoot } else { 'https://graph.microsoft.com/beta' }
-        Tip                   = if ($provider -eq 'CopilotChat') {
-            'Desktop Copilot != Chat API. Needs work M365 Copilot add-on + Graph scopes. Use /ai to probe.'
-        }
-        else {
-            'Set API key env var per settings'
-        }
+        Tip                   = $tip
     }
 }
 

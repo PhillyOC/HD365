@@ -6,8 +6,9 @@ catch {
     Write-Host 'Microsoft.Graph.Authentication missing. Run .\Install-HD365.ps1 first.' -ForegroundColor Yellow
     exit 2
 }
-Get-ChildItem 'C:\HD365\Private\*.ps1' | ForEach-Object { . $_.FullName }
-$script:HD365Root = 'C:\HD365'
+$root = if ($PSScriptRoot) { Split-Path $PSScriptRoot -Parent } else { 'C:\HD365' }
+Get-ChildItem (Join-Path $root 'Private\*.ps1') | ForEach-Object { . $_.FullName }
+$script:HD365Root = $root
 Initialize-HD365Session | Out-Null
 
 $ctx = Get-MgContext -ErrorAction SilentlyContinue

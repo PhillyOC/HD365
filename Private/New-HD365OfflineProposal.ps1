@@ -257,7 +257,7 @@ function New-HD365OfflineProposal {
     # --- Default: list users (safe read) ---
     $discovery = 'Get-MgUser -All -Property Id,DisplayName,UserPrincipalName,AccountEnabled | Select-Object Id,DisplayName,UserPrincipalName,AccountEnabled'
     return [pscustomobject]@{
-        summary             = 'Offline intent not matched. Configure CopilotChat or OpenAI for full NL planning.'
+        summary             = 'Offline intent not matched. Type /ai to configure an AI provider for full NL planning.'
         intent              = 'read'
         platform            = 'Microsoft Graph'
         modules             = @('Microsoft.Graph.Users')
@@ -267,7 +267,7 @@ function New-HD365OfflineProposal {
         discoveryScript     = (ConvertTo-HD365OneLiner -ScriptText $discovery)
         executionScript     = ''
         isWrite             = $false
-        warnings            = @('Offline fallback is limited. Prefer ai.provider=CopilotChat with a Copilot license.')
+        warnings            = @('Offline fallback is limited. Type /ai to pick a configured AI provider.')
         clarifyingQuestions = @()
         displayHints        = 'User directory listing'
         solutionKind        = 'PassthroughRead'

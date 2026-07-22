@@ -251,7 +251,9 @@ function Show-HD365AiSetupHelp {
     Write-Host '  3. Run /auth read and consent Copilot Chat Graph scopes' -ForegroundColor Gray
     Write-Host '  4. Type /ai - CopilotApi should be OK before long NL requests' -ForegroundColor Gray
     Write-Host ''
-    Write-Host 'OpenAI / Azure OpenAI (if Compliance allows):' -ForegroundColor White
-    Write-Host '  Set ai.provider to OpenAI or AzureOpenAI and configure endpoint/key in settings.json' -ForegroundColor Gray
+    Write-Host 'Other providers (agnostic line):' -ForegroundColor White
+    Write-Host '  AzureOpenAI, OpenAI, Anthropic, Gemini, Together, Mistral - set an API key env var' -ForegroundColor Gray
+    Write-Host '  Ollama - run locally (ollama serve), no API key needed' -ForegroundColor Gray
+    Write-Host '  Type /ai to see the full list and switch interactively' -ForegroundColor Gray
     Write-Host ''
 }

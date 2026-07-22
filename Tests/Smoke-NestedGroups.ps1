@@ -1,5 +1,6 @@
 $ErrorActionPreference = 'Stop'
-Get-ChildItem 'C:\HD365\Private\*.ps1' | ForEach-Object { . $_.FullName }
+$root = if ($PSScriptRoot) { Split-Path $PSScriptRoot -Parent } else { 'C:\HD365' }
+Get-ChildItem (Join-Path $root 'Private\*.ps1') | ForEach-Object { . $_.FullName }
 
 $msg = 'within every state group, make groups for accounts payable, hr, accounts receivable, management, operations, information technology, and finance'
 

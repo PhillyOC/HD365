@@ -1,19 +1,51 @@
 {
   "ai": {
     "provider": "CopilotChat",
-    "endpoint": "https://YOUR-RESOURCE.openai.azure.com/",
-    "deployment": "gpt-4o",
-    "apiVersion": "2024-10-21",
-    "apiKeyEnvVar": "HD365_AZURE_OPENAI_KEY",
-    "model": "gpt-4o",
     "temperature": 0.2,
     "maxTokens": 8192,
+    "allowOfflineFallback": false,
     "copilot": {
       "graphRoot": "https://graph.microsoft.com/beta",
       "timeZone": "America/New_York",
       "requireJsonRetry": true
     },
-    "allowOfflineFallback": false
+    "providers": {
+      "AzureOpenAI": {
+        "endpoint": "https://YOUR-RESOURCE.openai.azure.com/",
+        "deployment": "gpt-4o",
+        "apiVersion": "2024-10-21",
+        "apiKeyEnvVar": "HD365_AZURE_OPENAI_KEY"
+      },
+      "OpenAI": {
+        "model": "gpt-4o",
+        "baseUrl": "https://api.openai.com/v1",
+        "apiKeyEnvVar": "HD365_OPENAI_KEY"
+      },
+      "Anthropic": {
+        "model": "claude-sonnet-4-5",
+        "baseUrl": "https://api.anthropic.com/v1",
+        "apiKeyEnvVar": "HD365_ANTHROPIC_KEY"
+      },
+      "Gemini": {
+        "model": "gemini-2.0-flash",
+        "baseUrl": "https://generativelanguage.googleapis.com/v1beta",
+        "apiKeyEnvVar": "HD365_GEMINI_KEY"
+      },
+      "Together": {
+        "model": "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+        "baseUrl": "https://api.together.xyz/v1",
+        "apiKeyEnvVar": "HD365_TOGETHER_KEY"
+      },
+      "Mistral": {
+        "model": "mistral-large-latest",
+        "baseUrl": "https://api.mistral.ai/v1",
+        "apiKeyEnvVar": "HD365_MISTRAL_KEY"
+      },
+      "Ollama": {
+        "model": "llama3.2",
+        "baseUrl": "http://127.0.0.1:11434"
+      }
+    }
   },
   "graph": {
     "tenantId": "",

@@ -46,11 +46,12 @@ if (-not (Test-Path -LiteralPath $cfgPath)) {
     Copy-Item -LiteralPath $example -Destination $cfgPath
     Write-Host "Created settings: $cfgPath" -ForegroundColor Green
     Write-Host "Default AI provider: CopilotChat (requires M365 Copilot license)." -ForegroundColor Yellow
-    Write-Host "Or set ai.provider to AzureOpenAI/OpenAI when Compliance allows." -ForegroundColor Yellow
+    Write-Host "Other providers available: AzureOpenAI, OpenAI, Anthropic, Gemini, Together, Mistral, Ollama (local)." -ForegroundColor Yellow
+    Write-Host "Switch anytime with /ai in HD365." -ForegroundColor Yellow
 }
 else {
     Write-Host "Settings already exist: $cfgPath" -ForegroundColor Green
-    Write-Host "Tip: set ai.provider to CopilotChat for work Copilot licenses (see settings.example.json)." -ForegroundColor DarkGray
+    Write-Host "Tip: type /ai in HD365 for an interactive provider status + switcher." -ForegroundColor DarkGray
 }
 
 $auditDir = Join-Path $cfgDir 'audit'
@@ -72,8 +73,9 @@ if (-not $SkipAiHint) {
     Write-Host ""
     Write-Host "AI setup:" -ForegroundColor Cyan
     Write-Host "  CopilotChat (default): M365 Copilot license + Graph consent when HD365 connects" -ForegroundColor White
-    Write-Host "  AzureOpenAI/OpenAI: edit $cfgPath and set API key env var" -ForegroundColor White
-    Write-Host "  In HD365 type /ai to verify. allowOfflineFallback defaults to false." -ForegroundColor DarkGray
+    Write-Host "  AzureOpenAI/OpenAI/Anthropic/Gemini/Together/Mistral: edit $cfgPath and set the matching API key env var" -ForegroundColor White
+    Write-Host "  Ollama: install/run 'ollama serve' locally, no API key needed" -ForegroundColor White
+    Write-Host "  In HD365 type /ai for an interactive status + switcher. allowOfflineFallback defaults to false." -ForegroundColor DarkGray
 }
 
 Write-Host ""

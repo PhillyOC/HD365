@@ -50,12 +50,20 @@ Audit:
 
 ## AI providers
 
-Configured in `%LOCALAPPDATA%\HD365\settings.json` (`ai.provider`):
+Configured in `%LOCALAPPDATA%\HD365\settings.json` (`ai.provider` + `ai.providers.*`). Type `/ai` in-session for an interactive status + switcher (includes a Copilot Chat API create-conversation probe), or jump straight to one with `/ai <Name>`:
 
-- **CopilotChat** (default) — Microsoft 365 Copilot Chat API via Graph beta (`POST /beta/copilot/conversations`)
-- **AzureOpenAI** / **OpenAI** — when Compliance allows; set endpoint/key env var
+| Provider | Notes |
+|----------|-------|
+| **CopilotChat** (default) | Microsoft 365 Copilot Chat API via Graph beta (`POST /beta/copilot/conversations`) |
+| **AzureOpenAI** | Set `endpoint` + `deployment` + `HD365_AZURE_OPENAI_KEY` |
+| **OpenAI** | Set `HD365_OPENAI_KEY` |
+| **Anthropic** | Claude; set `HD365_ANTHROPIC_KEY` |
+| **Gemini** | Google Gemini; set `HD365_GEMINI_KEY` |
+| **Together** | Together AI (OpenAI-compatible); set `HD365_TOGETHER_KEY` |
+| **Mistral** | Mistral AI (OpenAI-compatible); set `HD365_MISTRAL_KEY` |
+| **Ollama** | Local models via `ollama serve`; no API key |
 
-Complex natural language **requires AI** (`allowOfflineFallback` defaults to `false`). Type `/ai` for status (includes a Chat API create-conversation probe).
+Complex natural language **requires AI** (`allowOfflineFallback` defaults to `false`).
 
 ### Home vs work (important)
 

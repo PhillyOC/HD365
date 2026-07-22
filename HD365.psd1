@@ -1,6 +1,6 @@
 @{
     RootModule        = 'HD365.psm1'
-    ModuleVersion     = '0.1.0'
+    ModuleVersion     = '0.2.0'
     GUID              = 'a7c3e9f1-2b4d-4e8a-9c1f-6d5e8a0b3c72'
     Author            = 'HD365'
     CompanyName       = 'HelpDesk 365 AI'
@@ -15,7 +15,7 @@
         PSData = @{
             Tags         = @('Microsoft365', 'Graph', 'HelpDesk', 'AI', 'ExchangeOnline', 'EntraID')
             ProjectUri   = 'https://github.com/PhillyOC/HD365'
-            ReleaseNotes = 'v0.1.0: CopilotChat planner, Graph batch bulk jobs, write gates, audit trail, Windows installer.'
+            ReleaseNotes = 'v0.2.0: Provider-agnostic AI (CopilotChat, AzureOpenAI, OpenAI, Anthropic, Gemini, Together, Mistral, Ollama) with interactive /ai switcher; v0.1.0: CopilotChat planner, Graph batch bulk jobs, write gates, audit trail, Windows installer.'
         }
     }
 }

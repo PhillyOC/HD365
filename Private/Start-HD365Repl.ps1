@@ -34,14 +34,66 @@ function Start-HD365Repl {
 
         if ($line -match '^/help$') { Show-HD365Help; continue }
 
-        if ($line -match '^/ai$') {
+        if ($line -match '^/ai(\s+(?<name>\S+))?$') {
+            $target = $Matches['name']
+            $catalog = @(Get-HD365ProviderCatalog)
+
+            if ($target) {
+                $match = $catalog | Where-Object { $_.Id -ieq $target } | Select-Object -First 1
+                if (-not $match) {
+                    Write-Host "Unknown provider '$target'. Type /ai to see the list." -ForegroundColor Red
+                    continue
+                }
+                $script:HD365Config.ai.provider = $match.Id
+                try { Save-HD365Config | Out-Null } catch { Write-Host "Warning: could not save settings.json: $($_.Exception.Message)" -ForegroundColor Yellow }
+                Write-Host "AI provider set to $($match.DisplayName) ($($match.Id))." -ForegroundColor Green
+            }
+
             $aiStatus = Get-HD365AiStatusWithProbe
             $aiStatus | Format-List | Out-String | Write-Host
+
+            Write-Host "Available AI providers:" -ForegroundColor Cyan
+            $menu = @{}
+            $i = 1
+            foreach ($p in $catalog) {
+                $ready = Test-HD365ProviderConfigured -Id $p.Id
+                $mark = if ($ready) { '[ready]      ' } else { '[needs setup]' }
+                $active = if ($p.Id -eq [string]$aiStatus.Provider) { '  <- active' } else { '' }
+                Write-Host ("  {0}. {1,-12} {2}  {3}{4}" -f $i, $p.Id, $mark, $p.DisplayName, $active)
+                $menu[[string]$i] = $p.Id
+                $i++
+            }
+            Write-Host ""
+
             if (-not (Test-HD365AiConfigured)) {
                 Show-HD365AiSetupHelp
             }
             elseif ([string]$aiStatus.Provider -eq 'CopilotChat' -and [string]$aiStatus.CopilotApi -notmatch '^OK') {
                 Show-HD365AiSetupHelp -ErrorMessage ([string]$aiStatus.CopilotApiDetail)
+            }
+
+            if (-not $target) {
+                Write-Host "Switch: type a number or name (e.g. /ai Ollama), or press Enter to keep current." -ForegroundColor DarkYellow
+                Write-Host -NoNewline "Provider> " -ForegroundColor Cyan
+                $choice = Read-Host
+                if (-not [string]::IsNullOrWhiteSpace($choice)) {
+                    $choice = $choice.Trim()
+                    $newId = $null
+                    if ($menu.ContainsKey($choice)) { $newId = $menu[$choice] }
+                    else {
+                        $m2 = $catalog | Where-Object { $_.Id -ieq $choice } | Select-Object -First 1
+                        if ($m2) { $newId = $m2.Id }
+                    }
+                    if (-not $newId) {
+                        Write-Host "Not recognized; provider unchanged." -ForegroundColor Yellow
+                    }
+                    else {
+                        $script:HD365Config.ai.provider = $newId
+                        try { Save-HD365Config | Out-Null } catch { Write-Host "Warning: could not save settings.json: $($_.Exception.Message)" -ForegroundColor Yellow }
+                        Write-Host "AI provider set to $newId." -ForegroundColor Green
+                        if (-not (Test-HD365AiConfigured)) { Show-HD365AiSetupHelp }
+                    }
+                }
             }
             continue
         }
