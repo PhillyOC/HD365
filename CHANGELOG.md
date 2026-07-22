@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Desktop app foundation: new JSON-RPC-over-stdio bridge (`Private\Invoke-HD365Bridge.ps1`,
+  launched via `Bridge-HD365.ps1`) exposing the engine to a future Tauri + React/TypeScript
+  desktop GUI. Methods: `ping`, `session.init`, `config.get`, `config.saveProvider`,
+  `provider.catalog`, `ai.statusProbe`, `auth.connect`, `exo.connect`, `pipeline.submit`,
+  `run.preview`, `run.execute`, `run.cancel`, `audit.tail`, `shutdown`.
+- `Get-HD365RunPreview` / `Invoke-HD365ExecutePlan`: the write-confirmation gate that used to
+  live entirely inside `Invoke-HD365ApprovedRun` is now two pure, non-interactive functions
+  (no `Read-Host`) that any caller (console REPL or GUI) can drive. `Invoke-HD365ApprovedRun`
+  is now a thin console wrapper around them; REPL behavior is unchanged.
+- `Tests\Smoke-Bridge.ps1`: spawns the real bridge process and drives it over stdin/stdout to
+  verify the JSON-RPC contract end to end.
+
 ## [0.2.0] - 2026-07-22
 
 ### Added

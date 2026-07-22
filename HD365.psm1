@@ -18,5 +18,6 @@ foreach ($file in @($private + $public)) {
 Export-ModuleMember -Function @(
     'Start-HD365',
     'Get-HD365AuditLog',
-    'Connect-HD365'
+    'Connect-HD365',
+    'Start-HD365Bridge'
 )

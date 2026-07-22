@@ -7,7 +7,7 @@
     Copyright         = 'Copyright (c) HD365 contributors'
     Description       = 'HelpDesk 365 AI — Graph-first natural-language PowerShell assistant for Microsoft 365 administration with read/write phase gates and full write audit trail.'
     PowerShellVersion = '5.1'
-    FunctionsToExport = @('Start-HD365', 'Get-HD365AuditLog', 'Connect-HD365')
+    FunctionsToExport = @('Start-HD365', 'Get-HD365AuditLog', 'Connect-HD365', 'Start-HD365Bridge')
     CmdletsToExport   = @()
     VariablesToExport = @()
     AliasesToExport   = @()
