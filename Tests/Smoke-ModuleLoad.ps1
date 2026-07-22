@@ -19,6 +19,11 @@ foreach ($need in @('Start-HD365', 'Get-HD365AuditLog', 'Connect-HD365')) {
 # Dot-source private surface for status (same as REPL internals)
 Get-ChildItem (Join-Path $root 'Private\*.ps1') | ForEach-Object { . $_.FullName }
 $script:HD365Root = $root
+
+# Explicitly load the repo's example config (deterministic) rather than letting
+# Initialize-HD365Session fall back to ambient %LOCALAPPDATA%\HD365\settings.json,
+# which may have been customized (e.g. via /ai) and would make this test flaky per-machine.
+$null = Get-HD365Config -Path (Join-Path $root 'Config\settings.example.json')
 Initialize-HD365Session | Out-Null
 $status = Get-HD365AiStatus
 if ($status.Provider -ne 'CopilotChat') { throw "provider=$($status.Provider)" }

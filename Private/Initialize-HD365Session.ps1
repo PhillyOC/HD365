@@ -2,7 +2,13 @@ function Initialize-HD365Session {
     [CmdletBinding()]
     param()
 
-    $config = Get-HD365Config
+    # Reuse an already-loaded config (e.g. Start-HD365 -SettingsPath, or a test harness that
+    # loaded a specific settings.json) instead of unconditionally re-running Get-HD365Config's
+    # ambient %LOCALAPPDATA% detection, which would silently discard an explicit path.
+    $config = $script:HD365Config
+    if (-not $config) {
+        $config = Get-HD365Config
+    }
 
     $script:HD365Session = [ordered]@{
         Id              = [guid]::NewGuid().ToString('N')
