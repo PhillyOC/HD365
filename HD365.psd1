@@ -1,6 +1,6 @@
 @{
     RootModule        = 'HD365.psm1'
-    ModuleVersion     = '0.2.1'
+    ModuleVersion     = '0.2.2'
     GUID              = 'a7c3e9f1-2b4d-4e8a-9c1f-6d5e8a0b3c72'
     Author            = 'HD365'
     CompanyName       = 'HelpDesk 365 AI'

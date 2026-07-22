@@ -8,16 +8,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **Root cause of the packaged app never getting past "Connecting to the HD365 engine..."**:
+  `app.path().resolve("engine", BaseDirectory::Resource)` canonicalizes on Windows and can hand
+  back an extended-length/verbatim path (`\\?\C:\...\engine\Bridge-HD365.ps1`). Windows
+  PowerShell 5.1 does not populate the `$PSScriptRoot` automatic variable when a script is
+  invoked via `-File` against such a path - it comes back empty - so every single launch of the
+  packaged/installed app crashed the bridge process instantly with
+  `Join-Path : Cannot process argument because the value of argument "drive" is null.` This
+  never showed up in dev builds (which resolve the live repo checkout instead, an already-clean
+  path) or in `Tests\Smoke-Bridge.ps1` (invoked with a normal path), only in a real install.
+  Fixed on both sides: `resolve_bridge_script` now strips the `\\?\` prefix back to a normal
+  drive-letter path, and `Bridge-HD365.ps1` no longer trusts `$PSScriptRoot` alone (falls back
+  to `$MyInvocation.MyCommand.Path`'s directory).
 - Desktop app: `powershell.exe` (the bridge child process) was spawned without the Windows
   `CREATE_NO_WINDOW` creation flag, so a real console window briefly flashed on screen every
   time the app started, even though stdio was fully redirected. It's now suppressed.
 - Desktop app: if the PowerShell bridge process crashed or exited unexpectedly right after
-  launch (bad `powershell.exe` path, AV/Group Policy block, script error, etc.), the app just
-  sat on "Connecting to the HD365 engine..." for the full 180-second call timeout with no
-  indication of what went wrong. `BridgeState` now captures a rolling tail of the bridge's
-  stderr, detects the process exiting via stdout EOF, and immediately fails every
+  launch (as it always did above, plus antivirus/Group Policy blocks or other script errors),
+  the app just sat on "Connecting to the HD365 engine..." for the full 180-second call timeout
+  with no indication of what went wrong. `BridgeState` now captures a rolling tail of the
+  bridge's stderr, detects the process exiting via stdout EOF, and immediately fails every
   pending/future call with a diagnosable error (including the captured PowerShell output)
-  instead of hanging silently.
+  instead of hanging silently - this is exactly what surfaced the root cause above.
 - Desktop app: `tauri.conf.json`'s `bundle.resources` entry for `engine/` made `cargo check` /
   `npm run tauri dev` / `cargo build` fail outright with `resource path 'engine' doesn't exist`
   on any checkout where `app/src-tauri/engine/` hadn't already been staged by
@@ -25,6 +37,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   builds too, not just `tauri build`). A committed `app/src-tauri/engine/.gitkeep` placeholder
   (kept present via a `.gitignore` exception) now guarantees the directory always exists on a
   fresh clone; `Build-HD365App.ps1` restores it after each restage so `git status` stays clean.
+
+## [0.2.2] - 2026-07-22
+
+Supersedes 0.2.1, which shipped the diagnostics/console-flash fixes below but not yet the
+`$PSScriptRoot`/verbatim-path root cause fix (found *using* those new diagnostics) - 0.2.1's
+installer still crashed on every launch. Use 0.2.2.
 
 ## [0.2.1] - 2026-07-22
 

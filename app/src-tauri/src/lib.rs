@@ -28,7 +28,26 @@ fn resolve_bridge_script(app: &tauri::AppHandle) -> Result<PathBuf, String> {
         .path()
         .resolve("engine", tauri::path::BaseDirectory::Resource)
         .map_err(|e| format!("could not resolve bundled engine resource dir: {e}"))?;
-    Ok(resource_dir.join("Bridge-HD365.ps1"))
+    Ok(strip_verbatim_prefix(resource_dir.join("Bridge-HD365.ps1")))
+}
+
+/// `app.path().resolve(..., BaseDirectory::Resource)` canonicalizes on Windows, which can
+/// return an extended-length ("verbatim") path like `\\?\C:\Program Files\HD365\engine\...`.
+/// Windows PowerShell 5.1 (`powershell.exe`) does not populate the `$PSScriptRoot` automatic
+/// variable when invoked with `-File` against such a path - it comes back empty, which crashes
+/// `Bridge-HD365.ps1` immediately (`Join-Path $PSScriptRoot ...` throws `ArgumentNull`) every
+/// single time the packaged app starts. Stripping the `\\?\` prefix back to a normal
+/// drive-letter path avoids the whole class of PowerShell verbatim-path quirks.
+fn strip_verbatim_prefix(path: PathBuf) -> PathBuf {
+    let s = path.to_string_lossy();
+    if let Some(stripped) = s.strip_prefix(r"\\?\") {
+        // Leave verbatim UNC paths (`\\?\UNC\server\share\...`) alone; they need the `\\` form
+        // rewritten differently and aren't a path this app otherwise resolves to.
+        if !stripped.to_ascii_uppercase().starts_with("UNC\\") {
+            return PathBuf::from(stripped);
+        }
+    }
+    path
 }
 
 #[tauri::command]
