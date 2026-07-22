@@ -140,12 +140,14 @@ function Invoke-HD365BridgeMethod {
         }
 
         'run.preview' {
-            return (Get-HD365RunPreview)
+            $scriptOverride = Get-HD365BridgeParam -Params $Params -Name 'scriptOverride'
+            return (Get-HD365RunPreview -ScriptOverride $scriptOverride)
         }
 
         'run.execute' {
             $confirmPhrase = Get-HD365BridgeParam -Params $Params -Name 'confirmPhrase'
-            return (Invoke-HD365ExecutePlan -ConfirmPhrase $confirmPhrase)
+            $scriptOverride = Get-HD365BridgeParam -Params $Params -Name 'scriptOverride'
+            return (Invoke-HD365ExecutePlan -ConfirmPhrase $confirmPhrase -ScriptOverride $scriptOverride)
         }
 
         'run.cancel' {

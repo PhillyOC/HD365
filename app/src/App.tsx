@@ -1,21 +1,20 @@
 import { useEffect, useState } from "react";
-import { bridgeCall, PingResult, SessionInitResult } from "./lib/bridge";
+import { HD365, SessionInitResult } from "./lib/bridge";
+import { ChatView } from "./components/ChatView";
 import "./App.css";
 
 type ConnState = "connecting" | "connected" | "error";
 
 function App() {
   const [state, setState] = useState<ConnState>("connecting");
-  const [ping, setPing] = useState<PingResult | null>(null);
   const [session, setSession] = useState<SessionInitResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
       try {
-        const pingResult = await bridgeCall<PingResult>("ping");
-        setPing(pingResult);
-        const sessionResult = await bridgeCall<SessionInitResult>("session.init");
+        await HD365.ping();
+        const sessionResult = await HD365.sessionInit();
         setSession(sessionResult);
         setState("connected");
       } catch (e) {
@@ -26,38 +25,31 @@ function App() {
   }, []);
 
   return (
-    <main className="container">
-      <h1>HD365</h1>
-      <p className="tagline">HelpDesk 365 AI - desktop bridge proof of life</p>
+    <div className="app-shell">
+      <header className="app-header">
+        <span className="app-title">HD365</span>
+        {session && (
+          <span className="app-status">
+            {session.graphConnected ? `Graph: ${session.graphAccount}` : "Graph: not connected"}
+            {" \u00b7 "}
+            {session.operator}@{session.machine}
+          </span>
+        )}
+      </header>
 
-      {state === "connecting" && <p>Connecting to the HD365 engine...</p>}
+      <main className="app-main">
+        {state === "connecting" && <p className="connecting">Connecting to the HD365 engine...</p>}
 
-      {state === "error" && (
-        <div className="error-box">
-          <strong>Bridge connection failed</strong>
-          <pre>{error}</pre>
-        </div>
-      )}
+        {state === "error" && (
+          <div className="error-box">
+            <strong>Bridge connection failed</strong>
+            <pre>{error}</pre>
+          </div>
+        )}
 
-      {state === "connected" && ping && session && (
-        <div className="status-box">
-          <p>
-            <strong>Bridge:</strong> connected (v{ping.bridgeVersion}, module{" "}
-            {ping.moduleVersion ?? "unknown"})
-          </p>
-          <p>
-            <strong>Session:</strong> {session.sessionId} - phase {session.phase}
-          </p>
-          <p>
-            <strong>Operator:</strong> {session.operator} @ {session.machine}
-          </p>
-          <p>
-            <strong>Graph:</strong>{" "}
-            {session.graphConnected ? `connected (${session.graphAccount})` : "not connected"}
-          </p>
-        </div>
-      )}
-    </main>
+        {state === "connected" && <ChatView />}
+      </main>
+    </div>
   );
 }
 

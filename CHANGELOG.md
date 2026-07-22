@@ -26,6 +26,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   will resolve a bundled `engine/` resource directory (wired up in a later packaging pass).
   Proven end to end: `ping` and `session.init` round-trip from React through Rust to the real
   PowerShell engine and back.
+- Chat UI (`app/src/components/ChatView.tsx`): natural-language input -> `pipeline.submit` ->
+  solution card (summary, platform, READ/WRITE badge, warnings, monospace one-liner) -> Copy /
+  Edit / Cancel (client-side) / Run. Run calls `run.preview`; write proposals open a red
+  write-warning modal requiring the exact confirmation phrase to be typed before `run.execute`
+  fires, matching the console's typed-`EXECUTE` gate. Read-only proposals execute immediately.
+  Results render in a result panel. `run.preview`/`run.execute` gained an optional
+  `scriptOverride` param so a client-side Edit actually takes effect at Run time (parity with
+  the console's `/edit`), without adding any new bridge methods.
+- `app/src/components/ChatView.test.tsx`: Vitest + Testing Library component test that mocks
+  only the Tauri `invoke` boundary and drives the real `ChatView` through a full write-proposal
+  flow (submit -> solution card -> Run -> modal blocks until exact phrase typed -> execute ->
+  result), asserting the exact bridge method call sequence.
 
 ## [0.2.0] - 2026-07-22
 

@@ -86,9 +86,17 @@ function Get-HD365RunPreview {
       Pure (no console I/O, no Read-Host) inspection of the pending proposal: normalizes the
       one-liner, resolves write/read mode, connects the required platform (Graph/EXO/AD), and
       returns everything a caller (REPL or GUI bridge) needs to render a confirmation prompt.
+
+    .PARAMETER ScriptOverride
+      Optional. When set, replaces the pending proposal's execution script before previewing -
+      the GUI equivalent of the console's /edit (which mutates $pending.ExecutionScript directly
+      via Notepad). A no-op bulk job (BulkKind set) still executes from JobData regardless of
+      this override, matching console behavior.
     #>
     [CmdletBinding()]
-    param()
+    param(
+        [string]$ScriptOverride
+    )
 
     $pending = $script:HD365Session.PendingProposal
     if (-not $pending) {
@@ -98,6 +106,7 @@ function Get-HD365RunPreview {
     $proposal = $pending.Proposal
     $scriptText = $pending.ExecutionScript
     if (-not $scriptText) { $scriptText = $proposal.executionScript }
+    if ($ScriptOverride) { $scriptText = $ScriptOverride }
 
     # One-liner enforcement for copy/paste consistency
     $scriptText = ConvertTo-HD365OneLiner -ScriptText $scriptText
@@ -153,10 +162,15 @@ function Invoke-HD365ExecutePlan {
       Pure (no Read-Host) execution of the pending proposal. Callers (REPL, GUI bridge) are
       responsible for obtaining confirmation *before* calling this when RequiresConfirmation
       was true on the matching Get-HD365RunPreview result, and must pass that phrase back here.
+
+    .PARAMETER ScriptOverride
+      Optional. Same client-edit override as Get-HD365RunPreview's -ScriptOverride; pass the
+      same value used for the preceding preview call so what the user confirmed is what runs.
     #>
     [CmdletBinding()]
     param(
-        [string]$ConfirmPhrase
+        [string]$ConfirmPhrase,
+        [string]$ScriptOverride
     )
 
     $pending = $script:HD365Session.PendingProposal
@@ -165,7 +179,9 @@ function Invoke-HD365ExecutePlan {
     }
 
     $proposal = $pending.Proposal
-    $scriptText = ConvertTo-HD365OneLiner -ScriptText ([string]$pending.ExecutionScript)
+    $scriptText = [string]$pending.ExecutionScript
+    if ($ScriptOverride) { $scriptText = $ScriptOverride }
+    $scriptText = ConvertTo-HD365OneLiner -ScriptText $scriptText
     $pending.ExecutionScript = $scriptText
 
     $isWrite = $false
