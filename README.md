@@ -15,6 +15,19 @@ Graph-first PowerShell assistant for Microsoft 365 helpdesk work: natural langua
 
 Or install via the Windows setup (`HD365-Setup-*.exe`) from [Releases](https://github.com/PhillyOC/HD365/releases).
 
+### Desktop app (in progress)
+
+A branded Tauri + React/TypeScript desktop GUI lives in [`app/`](app) and talks to this same
+PowerShell engine over a local JSON-RPC bridge (`Bridge-HD365.ps1`) - no engine logic is
+duplicated. It's under active development; the console (`Start-HD365.ps1`) remains the primary,
+fully-supported way to run HD365 today. To try the desktop app in dev mode:
+
+```powershell
+cd app
+npm install
+npm run tauri dev
+```
+
 In-session:
 
 ```text

@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is now a thin console wrapper around them; REPL behavior is unchanged.
 - `Tests\Smoke-Bridge.ps1`: spawns the real bridge process and drives it over stdin/stdout to
   verify the JSON-RPC contract end to end.
+- Desktop app scaffold (`app/`): Tauri 2 + React/TypeScript + Vite. Rust `BridgeState` process
+  manager (`app/src-tauri/src/bridge.rs`) spawns `Bridge-HD365.ps1` once at startup and keeps it
+  alive; a single generic `bridge_call(method, params)` Tauri command forwards JSON-RPC calls to
+  it. In dev builds the Rust side runs directly against the live repo checkout; packaged builds
+  will resolve a bundled `engine/` resource directory (wired up in a later packaging pass).
+  Proven end to end: `ping` and `session.init` round-trip from React through Rust to the real
+  PowerShell engine and back.
 
 ## [0.2.0] - 2026-07-22
 
