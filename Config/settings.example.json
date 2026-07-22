@@ -1,0 +1,39 @@
+{
+  "ai": {
+    "provider": "CopilotChat",
+    "endpoint": "https://YOUR-RESOURCE.openai.azure.com/",
+    "deployment": "gpt-4o",
+    "apiVersion": "2024-10-21",
+    "apiKeyEnvVar": "HD365_AZURE_OPENAI_KEY",
+    "model": "gpt-4o",
+    "temperature": 0.2,
+    "maxTokens": 8192,
+    "copilot": {
+      "graphRoot": "https://graph.microsoft.com/beta",
+      "timeZone": "America/New_York",
+      "requireJsonRetry": true
+    },
+    "allowOfflineFallback": false
+  },
+  "graph": {
+    "tenantId": "",
+    "clientId": "",
+    "useDeviceCode": false,
+    "preferInteractive": true
+  },
+  "execution": {
+    "requireWriteConfirmation": true,
+    "confirmationPhrase": "EXECUTE",
+    "allowClipboardCopy": true,
+    "timeoutSeconds": 600
+  },
+  "audit": {
+    "enabled": true,
+    "directory": "%LOCALAPPDATA%\\HD365\\audit",
+    "retainDays": 365
+  },
+  "session": {
+    "historySize": 50,
+    "defaultPhase": "Ready"
+  }
+}

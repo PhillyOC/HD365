@@ -1,0 +1,32 @@
+# Local secrets / machine config
+**/settings.json
+.env
+*.key
+*.pem
+
+# Audit logs and local script artifacts (may contain UPNs / script text)
+**/audit/
+**/scripts/
+
+# Build output
+dist/
+*.exe
+!build/**
+
+# Editor / OS
+.vs/
+.vscode/
+.idea/
+*.swp
+*~
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# PowerShell
+*.pssc
+*.psd1.bak
+
+# Probe / local test outputs
+Tests/Probe-*.log
+*.log

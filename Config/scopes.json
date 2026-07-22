@@ -1,0 +1,131 @@
+{
+  "readScopes": [
+    "User.Read",
+    "User.Read.All",
+    "Group.Read.All",
+    "GroupMember.Read.All",
+    "Directory.Read.All",
+    "Organization.Read.All",
+    "AuditLog.Read.All",
+    "Reports.Read.All",
+    "RoleManagement.Read.All",
+    "RoleManagement.Read.Directory",
+    "PrivilegedAccess.Read.AzureAD",
+    "PrivilegedAccess.Read.AzureResources",
+    "Policy.Read.All",
+    "Device.Read.All",
+    "DeviceManagementManagedDevices.Read.All",
+    "Calendars.Read",
+    "Mail.Read",
+    "MailboxSettings.Read",
+    "Channel.ReadBasic.All",
+    "ChannelMember.Read.All",
+    "Team.ReadBasic.All",
+    "TeamMember.Read.All",
+    "Files.Read.All",
+    "SecurityEvents.Read.All",
+    "UserAuthenticationMethod.Read.All",
+    "Sites.Read.All",
+    "People.Read.All",
+    "OnlineMeetingTranscript.Read.All",
+    "Chat.Read",
+    "ChannelMessage.Read.All",
+    "ExternalItem.Read.All"
+  ],
+  "writeScopes": [
+    "User.ReadWrite.All",
+    "Group.ReadWrite.All",
+    "GroupMember.ReadWrite.All",
+    "Device.ReadWrite.All",
+    "DeviceManagementApps.ReadWrite.All",
+    "DeviceManagementConfiguration.ReadWrite.All",
+    "DeviceManagementManagedDevices.ReadWrite.All",
+    "DeviceManagementServiceConfig.ReadWrite.All",
+    "Calendars.ReadWrite",
+    "Mail.ReadWrite",
+    "Mail.Send",
+    "MailboxSettings.ReadWrite",
+    "Policy.ReadWrite.ConditionalAccess",
+    "Sites.ReadWrite.All",
+    "Sites.FullControl.All",
+    "TeamMember.ReadWrite.All",
+    "TeamSettings.ReadWrite.All",
+    "ThreatAssessment.ReadWrite.All",
+    "UserAuthenticationMethod.ReadWrite.All",
+    "eDiscovery.ReadWrite.All"
+  ],
+  "operationHints": {
+    "listGroupMembers": {
+      "platform": "Microsoft Graph",
+      "module": "Microsoft.Graph.Groups",
+      "leastScopes": ["GroupMember.Read.All", "Group.Read.All"],
+      "phase": "read"
+    },
+    "searchGroups": {
+      "platform": "Microsoft Graph",
+      "module": "Microsoft.Graph.Groups",
+      "leastScopes": ["Group.Read.All"],
+      "phase": "read"
+    },
+    "addGroupMember": {
+      "platform": "Microsoft Graph",
+      "module": "Microsoft.Graph.Groups",
+      "leastScopes": ["GroupMember.ReadWrite.All"],
+      "phase": "write"
+    },
+    "removeGroupMember": {
+      "platform": "Microsoft Graph",
+      "module": "Microsoft.Graph.Groups",
+      "leastScopes": ["GroupMember.ReadWrite.All"],
+      "phase": "write"
+    },
+    "listUsers": {
+      "platform": "Microsoft Graph",
+      "module": "Microsoft.Graph.Users",
+      "leastScopes": ["User.Read.All"],
+      "phase": "read"
+    },
+    "updateUser": {
+      "platform": "Microsoft Graph",
+      "module": "Microsoft.Graph.Users",
+      "leastScopes": ["User.ReadWrite.All"],
+      "phase": "write"
+    },
+    "mailEnabledGroups": {
+      "platform": "Exchange Online",
+      "module": "ExchangeOnlineManagement",
+      "leastScopes": ["Exchange Administrator or Recipient Management (RBAC)"],
+      "phase": "read"
+    },
+    "distributionGroupMembers": {
+      "platform": "Exchange Online",
+      "module": "ExchangeOnlineManagement",
+      "leastScopes": ["Exchange Administrator or Recipient Management (RBAC)"],
+      "phase": "read"
+    },
+    "addDistributionGroupMember": {
+      "platform": "Exchange Online",
+      "module": "ExchangeOnlineManagement",
+      "leastScopes": ["Exchange Administrator or Recipient Management (RBAC)"],
+      "phase": "write"
+    },
+    "auditSignIns": {
+      "platform": "Microsoft Graph",
+      "module": "Microsoft.Graph.Reports",
+      "leastScopes": ["AuditLog.Read.All"],
+      "phase": "read"
+    },
+    "conditionalAccess": {
+      "platform": "Microsoft Graph",
+      "module": "Microsoft.Graph.Identity.SignIns",
+      "leastScopes": ["Policy.Read.All"],
+      "phase": "read"
+    },
+    "adOnPrem": {
+      "platform": "Active Directory (RSAT)",
+      "module": "ActiveDirectory",
+      "leastScopes": ["Domain Admin / delegated OU rights on DC"],
+      "phase": "read"
+    }
+  }
+}
