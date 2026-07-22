@@ -44,6 +44,27 @@ foreach ($item in $include) {
     Copy-Item -LiteralPath $src -Destination (Join-Path $stage $item) -Recurse -Force
 }
 
+# --- GUI/bridge firewall: the desktop app (app/, build/Build-HD365App.ps1, Bridge-HD365.ps1) is
+# already excluded because it's simply not in $include above, but Private/ and Tests/ are copied
+# *wholesale* by the loop, which would otherwise carry the JSON-RPC bridge engine
+# (Invoke-HD365Bridge.ps1) and its smoke test into the work line even though nothing there can
+# ever invoke them. Strip both explicitly, then remove the now-dangling Start-HD365Bridge export
+# so the trimmed HD365.psm1/.psd1 don't reference a function that no longer exists in this build.
+$bridgeSourcePath = Join-Path $stage 'Private\Invoke-HD365Bridge.ps1'
+if (Test-Path -LiteralPath $bridgeSourcePath) { Remove-Item -LiteralPath $bridgeSourcePath -Force }
+$bridgeSmokePath = Join-Path $stage 'Tests\Smoke-Bridge.ps1'
+if (Test-Path -LiteralPath $bridgeSmokePath) { Remove-Item -LiteralPath $bridgeSmokePath -Force }
+
+foreach ($relPath in @('HD365.psm1', 'HD365.psd1')) {
+    $p = Join-Path $stage $relPath
+    $text = Get-Content -LiteralPath $p -Raw -Encoding UTF8
+    $trimmed = $text -replace "\s*,?\s*'Start-HD365Bridge'", ''
+    if ($trimmed -eq $text) {
+        throw "Export-HD365Work: expected to find/strip 'Start-HD365Bridge' from $relPath but did not - update this script to match the current source."
+    }
+    Set-Content -LiteralPath $p -Value $trimmed -Encoding UTF8
+}
+
 # --- Provider firewall: replace the catalog module with CopilotChat + AzureOpenAI only ---
 $providersPath = Join-Path $stage 'Private\Invoke-HD365Providers.ps1'
 $workProviders = @'

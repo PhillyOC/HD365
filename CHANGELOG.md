@@ -75,6 +75,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Build-HD365App.ps1 -SkipInstall`) that attaches the desktop installer(s) to the same GitHub
   Release as the existing console zip/exe, on every `v*` tag push.
 
+### Fixed
+
+- `build\Export-HD365Work.ps1`: the desktop app itself was never included in the work export
+  (`app/`, `build\Build-HD365App.ps1`, and the root `Bridge-HD365.ps1` launcher were simply not
+  in its file list), but `Private\Invoke-HD365Bridge.ps1` and `Tests\Smoke-Bridge.ps1` were
+  leaking in anyway because the export copies `Private/` and `Tests/` wholesale. Both are now
+  explicitly stripped, and the now-dangling `'Start-HD365Bridge'` export is removed from the
+  staged `HD365.psm1`/`HD365.psd1` so the trimmed module doesn't reference a function that no
+  longer exists in that build. Verified locally: the staged module imports cleanly and exports
+  exactly `Start-HD365`, `Get-HD365AuditLog`, `Connect-HD365`.
+
 ## [0.2.0] - 2026-07-22
 
 ### Added
