@@ -3,10 +3,14 @@ import { HD365, SessionInitResult } from "./lib/bridge";
 import { ChatView } from "./components/ChatView";
 import { ProvidersView } from "./components/ProvidersView";
 import { AuditView } from "./components/AuditView";
+import { Onboarding } from "./components/Onboarding";
+import hd365Logo from "./assets/hd365-logo.png";
 import "./App.css";
 
 type ConnState = "connecting" | "connected" | "error";
 type Tab = "chat" | "providers" | "audit";
+
+const ONBOARDING_DISMISSED_KEY = "hd365.onboarding.dismissed";
 
 function App() {
   const [state, setState] = useState<ConnState>("connecting");
@@ -16,6 +20,7 @@ function App() {
   const [activeProvider, setActiveProvider] = useState<string | null>(null);
   const [connectingGraph, setConnectingGraph] = useState(false);
   const [connectingExo, setConnectingExo] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const refreshSession = useCallback(async () => {
     try {
@@ -44,6 +49,9 @@ function App() {
         await refreshSession();
         await refreshProvider();
         setState("connected");
+        if (localStorage.getItem(ONBOARDING_DISMISSED_KEY) !== "1") {
+          setShowOnboarding(true);
+        }
       } catch (e) {
         setError(String(e));
         setState("error");
@@ -75,13 +83,25 @@ function App() {
     }
   }
 
+  function dismissOnboarding() {
+    localStorage.setItem(ONBOARDING_DISMISSED_KEY, "1");
+    setShowOnboarding(false);
+  }
+
   return (
     <div className="app-shell">
       <header className="app-header">
-        <span className="app-title">HD365</span>
+        <span className="app-brand">
+          <img src={hd365Logo} alt="" className="app-logo" />
+          <span className="app-title">HD365</span>
+        </span>
 
         {session && (
           <div className="app-status-group">
+            <button className="status-pill" onClick={() => setShowOnboarding(true)}>
+              Setup guide
+            </button>
+
             <button
               className={`status-pill ${session.graphConnected ? "status-ok" : "status-warn"}`}
               onClick={session.graphConnected ? undefined : handleConnectGraph}
@@ -143,6 +163,18 @@ function App() {
         )}
         {state === "connected" && tab === "audit" && <AuditView />}
       </main>
+
+      {state === "connected" && showOnboarding && (
+        <Onboarding
+          onDismiss={dismissOnboarding}
+          onConnectGraph={handleConnectGraph}
+          onConnectExo={handleConnectExo}
+          onOpenProviders={() => {
+            setTab("providers");
+            dismissOnboarding();
+          }}
+        />
+      )}
     </div>
   );
 }

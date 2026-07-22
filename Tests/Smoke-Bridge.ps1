@@ -76,6 +76,10 @@ try {
     if ($null -eq $r5.result) { throw "audit.tail returned null result. Raw: $($r5 | ConvertTo-Json -Compress)" }
     Write-Host "BRIDGE_AUDIT_TAIL_OK count=$(@($r5.result).Count)"
 
+    $r5b = Send-BridgeRequest -Id 8 -Method 'session.prereqCheck'
+    if ($null -eq $r5b.result.activeProviderId) { throw "session.prereqCheck did not return activeProviderId. Raw: $($r5b | ConvertTo-Json -Compress)" }
+    Write-Host "BRIDGE_PREREQ_CHECK_OK provider=$($r5b.result.activeProviderId) graphModule=$($r5b.result.graphModuleInstalled)"
+
     $r6 = Send-BridgeRequest -Id 6 -Method 'no.such.method'
     if (-not $r6.error) { throw "Unknown method should return an error envelope. Raw: $($r6 | ConvertTo-Json -Compress)" }
     Write-Host "BRIDGE_UNKNOWN_METHOD_ERROR_OK"

@@ -43,6 +43,17 @@ export interface SessionInitResult {
   configPath: string;
 }
 
+export interface PrereqCheckResult {
+  graphModuleInstalled: boolean;
+  exoModuleInstalled: boolean;
+  adModuleAvailable: boolean;
+  graphConnected: boolean;
+  exoConnected: boolean;
+  activeProviderId: string;
+  activeProviderDisplayName: string;
+  activeProviderConfigured: boolean;
+}
+
 export interface ProviderCatalogEntry {
   id: string;
   displayName: string;
@@ -130,6 +141,8 @@ export const HD365 = {
   ping: () => bridgeCall<PingResult>("ping"),
 
   sessionInit: () => bridgeCall<SessionInitResult>("session.init"),
+
+  prereqCheck: () => bridgeCall<PrereqCheckResult>("session.prereqCheck"),
 
   providerCatalog: () => bridgeCall<ProviderCatalogEntry[]>("provider.catalog"),
 

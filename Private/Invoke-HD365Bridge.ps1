@@ -70,6 +70,23 @@ function Invoke-HD365BridgeMethod {
             }
         }
 
+        'session.prereqCheck' {
+            $graphModule = Get-Module -ListAvailable -Name Microsoft.Graph.Authentication | Select-Object -First 1
+            $exoModule = Get-Module -ListAvailable -Name ExchangeOnlineManagement | Select-Object -First 1
+            $activeProviderId = [string]$script:HD365Config.ai.provider
+            $activeEntry = @(Get-HD365ProviderCatalog) | Where-Object { $_.Id -eq $activeProviderId } | Select-Object -First 1
+            return [ordered]@{
+                graphModuleInstalled      = [bool]$graphModule
+                exoModuleInstalled        = [bool]$exoModule
+                adModuleAvailable         = [bool]$script:HD365Session.AdAvailable
+                graphConnected            = [bool]$script:HD365Session.GraphConnected
+                exoConnected              = [bool]$script:HD365Session.ExoConnected
+                activeProviderId          = $activeProviderId
+                activeProviderDisplayName = if ($activeEntry) { $activeEntry.DisplayName } else { $activeProviderId }
+                activeProviderConfigured  = if ($activeProviderId) { (Test-HD365ProviderConfigured -Id $activeProviderId) } else { $false }
+            }
+        }
+
         'config.get' {
             return $script:HD365Config
         }

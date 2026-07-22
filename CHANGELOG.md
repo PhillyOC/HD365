@@ -47,6 +47,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `app/src/components/AuditView.tsx`: tails the local audit log via `audit.tail` with a
   writes-only filter and a row-count selector; each row expands to show session/machine/graph
   mode, script text, and event data, matching the console's audit story in the GUI.
+- Real HD365 app icon/branding: generated shield + headset + circuit mark, run through
+  `tauri icon` for the full desktop icon set (`.ico`/`.icns`/PNGs), plus an in-app logo next to
+  the header title and a proper favicon (desktop-only - Android/iOS icon sets were dropped).
+- CSS design tokens: `app/src/App.css` now defines the dark theme as named custom properties
+  (`--color-*`, `--radius-*`) in `:root` instead of scattered hex literals, so every component
+  pulls from one palette.
+- First-run onboarding (`app/src/components/Onboarding.tsx`): a "Welcome to HD365" checklist
+  covering the Microsoft Graph module/connection, the active AI provider's configured state,
+  and optional Exchange Online, each with an inline fix action (connect button, install
+  command, or a jump to the AI Providers tab). Shown once (persisted via `localStorage`) and
+  reopenable any time from a "Setup guide" pill in the header. Backed by a new bridge method,
+  `session.prereqCheck` (module-installed / connected / active-provider-configured flags in one
+  call), covered by `Tests\Smoke-Bridge.ps1` and `app/src/App.onboarding.test.tsx`.
 
 ## [0.2.0] - 2026-07-22
 

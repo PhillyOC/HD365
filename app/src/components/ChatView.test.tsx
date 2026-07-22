@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "../App";
@@ -91,6 +91,13 @@ vi.mock("@tauri-apps/api/core", () => ({
 }));
 
 describe("HD365 desktop chat flow", () => {
+  beforeEach(() => {
+    // This suite exercises the chat flow, not first-run onboarding - suppress the onboarding
+    // overlay so it doesn't sit on top of (or add unmocked bridge calls ahead of) the chat UI.
+    localStorage.setItem("hd365.onboarding.dismissed", "1");
+    invokeMock.mockClear();
+  });
+
   it("submits a task, requires typed EXECUTE for a write proposal, and shows the result", async () => {
     const user = userEvent.setup();
     render(<App />);
