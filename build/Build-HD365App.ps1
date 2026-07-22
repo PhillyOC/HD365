@@ -93,6 +93,10 @@ foreach ($item in $engineItems) {
     if (-not (Test-Path -LiteralPath $src)) { throw "Engine source item not found: $src" }
     Copy-Item -LiteralPath $src -Destination (Join-Path $engineDir $item) -Recurse -Force
 }
+# Restore the committed .gitkeep placeholder (see app/src-tauri/.gitignore) so `git status`
+# never reports it as deleted - it must always exist for tauri-build's resource path check to
+# pass on a clean checkout, even before this script has ever staged real engine content.
+New-Item -ItemType File -Path (Join-Path $engineDir '.gitkeep') -Force | Out-Null
 Write-Host "Staged engine/ with: $($engineItems -join ', ')" -ForegroundColor DarkGray
 
 # ---------------------------------------------------------------------------

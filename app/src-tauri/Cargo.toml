@@ -1,6 +1,6 @@
 [package]
 name = "hd365-desktop"
-version = "0.2.0"
+version = "0.2.1"
 description = "HD365 - HelpDesk 365 AI desktop app"
 authors = ["HD365"]
 edition = "2021"

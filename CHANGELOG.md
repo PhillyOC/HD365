@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Desktop app: `powershell.exe` (the bridge child process) was spawned without the Windows
+  `CREATE_NO_WINDOW` creation flag, so a real console window briefly flashed on screen every
+  time the app started, even though stdio was fully redirected. It's now suppressed.
+- Desktop app: if the PowerShell bridge process crashed or exited unexpectedly right after
+  launch (bad `powershell.exe` path, AV/Group Policy block, script error, etc.), the app just
+  sat on "Connecting to the HD365 engine..." for the full 180-second call timeout with no
+  indication of what went wrong. `BridgeState` now captures a rolling tail of the bridge's
+  stderr, detects the process exiting via stdout EOF, and immediately fails every
+  pending/future call with a diagnosable error (including the captured PowerShell output)
+  instead of hanging silently.
+- Desktop app: `tauri.conf.json`'s `bundle.resources` entry for `engine/` made `cargo check` /
+  `npm run tauri dev` / `cargo build` fail outright with `resource path 'engine' doesn't exist`
+  on any checkout where `app/src-tauri/engine/` hadn't already been staged by
+  `build\Build-HD365App.ps1` (tauri-build validates resource paths at compile time, for dev
+  builds too, not just `tauri build`). A committed `app/src-tauri/engine/.gitkeep` placeholder
+  (kept present via a `.gitignore` exception) now guarantees the directory always exists on a
+  fresh clone; `Build-HD365App.ps1` restores it after each restage so `git status` stays clean.
+
+## [0.2.1] - 2026-07-22
+
 ### Added
 - Desktop app foundation: new JSON-RPC-over-stdio bridge (`Private\Invoke-HD365Bridge.ps1`,
   launched via `Bridge-HD365.ps1`) exposing the engine to a future Tauri + React/TypeScript
